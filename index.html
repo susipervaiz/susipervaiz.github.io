@@ -1,5 +1,178 @@
 <html>
-  <head>
-    <title>hi</title>
-  </head>
+<head>
+<style>
+#jesse 
+{
+	cursor: pointer;
+	position: absolute;
+    transition: transform 2s;
+}
+body
+{
+	transition: background-color .5s;
+	user-select: none;
+}
+</style>
+<script src="jquery-3.3.1.min.js"></script>
+<script>
+	(function ($, window, undefined) {
+	$.fn.marqueeify = function (options) {
+		var settings = $.extend({
+			horizontal: true,
+			vertical: true,
+			speed: 200, // In pixels per second
+			container: $("body"),
+			bumpEdge: function () {}
+		}, options);
+		
+		return this.each(function () {
+			var containerWidth, containerHeight, elWidth, elHeight, move, getSizes,
+				$el = $(this);
+
+			getSizes = function () {
+				containerWidth = settings.container.outerWidth();
+				containerHeight = settings.container.outerHeight();
+				elWidth = $el.outerWidth();
+				elHeight = $el.outerHeight();
+			};
+
+			move = {
+				right: function () {
+					$el.animate({left: (containerWidth - elWidth)}, {duration: ((containerWidth/settings.speed) * 1000), queue: false, easing: "linear", complete: function () {
+						settings.bumpEdge();
+						move.left();
+					}});
+				},
+				left: function () {
+					$el.animate({left: 0}, {duration: ((containerWidth/settings.speed) * 1000), queue: false, easing: "linear", complete: function () {
+						settings.bumpEdge();
+						move.right();
+					}});
+				},
+				down: function () {
+					$el.animate({top: (containerHeight - elHeight)}, {duration: ((containerHeight/settings.speed) * 1000), queue: false, easing: "linear", complete: function () {
+						settings.bumpEdge();
+						move.up();
+					}});
+				},
+				up: function () {
+					$el.animate({top: 0}, {duration: ((containerHeight/settings.speed) * 1000), queue: false, easing: "linear", complete: function () {
+						settings.bumpEdge();
+						move.down();
+					}});
+				}
+			};
+
+			getSizes();
+
+			if (settings.horizontal) {
+				move.right();
+			}
+			if (settings.vertical) {
+				move.down();
+			}
+
+	      $(window).resize( function() {
+	        getSizes();
+	      });
+		});
+	};
+})(jQuery, window);
+
+$(document).ready( function() {
+
+	$('.marquee').marqueeify({
+		speed: 300,
+		bumpEdge: function () {
+			var newColor = "hsl(" + Math.floor(Math.random()*360) + ", 100%, 50%)";
+			$('.marquee .logo').css('fill', newColor);
+		}
+	});
+});
+</script>	
+<script>
+	function changeColor() 
+	{
+	  var letters = '0123456789ABCDEF';
+	  var color = '#';
+	  for (var i = 0; i < 6; i++) {
+	    color += letters[Math.floor(Math.random() * 16)];
+	  }
+	  $("body").css("background-color",color);
+	}
+	function autoClick()
+	{
+		var s = parseInt($("h1").text().substr(2+$("h1").text().indexOf(":")));
+		$("h1").text("Score: " + (s+auto));
+		localStorage.setItem("score", s+auto);
+	}
+	var auto = 0;
+	var sup = 0;
+	$(document).ready(function(){
+		console.log(localStorage.getItem("score"));
+		if(localStorage.getItem("score")=="NaN")
+		{
+			localStorage.setItem("score",0);
+			localStorage.setItem("auto",0);
+			localStorage.setItem("super",0);
+			localStorage.setItem("autoPrice",10);
+			localStorage.setItem("superPrice",10);
+		}
+		$("h1").text("Score: " + (localStorage.getItem("score")));
+		auto = parseInt(localStorage.getItem("auto"));
+		sup = parseInt(localStorage.getItem("super"));
+		$("#autoButton").text("Buy autoclicker! - " + (localStorage.getItem("autoPrice")));
+		$("#superButton").text("Buy superclicker! - " + (localStorage.getItem("superPrice")));
+		changeColor();
+		var t = setInterval(changeColor, 1000);
+		var t3 = setInterval(autoClick, 1000);
+		$("img").click(function(){
+			var s = parseInt($("h1").text().substr(2+$("h1").text().indexOf(":")));
+			$("h1").text("Score: " + (s+1+sup));
+			localStorage.setItem("score", s+1+sup);
+		});
+		$("img").mousedown(function(){
+			console.log("!");
+			$("#jesse").attr("src","two.png");
+		});
+		$("img").mouseup(function(){
+			$("#jesse").attr("src","one.png");
+		});
+		$("#autoButton").click(function(){
+			var s = parseInt($("h1").text().substr(2+$("h1").text().indexOf(":")));
+			var c = parseInt($("#autoButton").text().substr(2+$("#autoButton").text().indexOf("-")));
+			if(s >= c)
+			{
+				$("h1").text("Score: " + (s-c));
+				$("#autoButton").text("Buy autoclicker! - " + parseInt(c*1.5));
+				auto++;
+				localStorage.setItem("auto", auto);
+				localStorage.setItem("score", s-c);
+				localStorage.setItem("autoPrice", parseInt(c*1.5));
+			}
+		});
+		$("#superButton").click(function(){
+			var s = parseInt($("h1").text().substr(2+$("h1").text().indexOf(":")));
+			var c = parseInt($("#superButton").text().substr(2+$("#superButton").text().indexOf("-")));
+			if(s >= c)
+			{
+				$("h1").text("Score: " + (s-c));
+				$("#superButton").text("Buy superclicker! - " + parseInt(c*1.5));
+				sup++;
+				localStorage.setItem("super", sup);
+				localStorage.setItem("score", s-c);
+				localStorage.setItem("superPrice", parseInt(c*1.5));
+			}
+		});
+	});
+</script>
+<title>Mole Day Cliker</title>
+</head>
+<body>
+<img id="header" src="header.gif"/>	
+<img class="marquee" id="jesse" height="350px" width="296px" src="one.png"/>
+<h1 style="text-align: center;">Score: 0</h1>
+<button id="autoButton" type="button">Buy autoclicker! - 10</button>
+<button id="superButton" type="button">Buy superclicker! - 10</button>
+</body>
 </html>
